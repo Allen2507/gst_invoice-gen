@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Invoice Preview</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
+    .invoice-box { max-width: 800px; margin: auto; background: white; padding: 20px; border: 1px solid #ccc; }
+    .button-group { margin-top: 20px; text-align: center; }
+    button { padding: 10px 20px; margin: 0 10px; border: none; background: #3498db; color: white; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #2980b9; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    td, th { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    img { max-width: 150px; }
+  </style>
+</head>
+<body>
+  <div class="invoice-box" id="invoicePreview">
+    <h2 style="text-align:center;">GST Invoice</h2>
+    <div>
+      <img src="logo.png" alt="Logo" />
+      <p><strong>NEW JJ CATERERS</strong><br>
+      No.131 Door No.1D, KKR Doctor’s Court, M.H. Road, Perambur, Chennai-600011<br>
+      GSTIN: 33AAJPE1075G1Z4<br>
+      Mobile: +91 98848 15501</p>
+    </div>
+
+    <p><strong>Customer Name:</strong> <span id="custName"></span></p>
+    <p><strong>Customer Address:</strong> <span id="custAddr"></span></p>
+    <p><strong>Customer GSTIN:</strong> <span id="custGST"></span></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Rate</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody id="itemRows"></tbody>
+    </table>
+
+    <p><strong>Transport Charges:</strong> ₹<span id="transportCost"></span></p>
+    <p><strong>CGST:</strong> ₹<span id="cgstCost"></span></p>
+    <p><strong>SGST:</strong> ₹<span id="sgstCost"></span></p>
+    <p><strong>Grand Total:</strong> ₹<span id="grandTotal"></span></p>
+    <p><strong>Amount in Words:</strong> <span id="amountWords"></span></p>
+
+    <div>
+      <p><strong>Authorized Signature:</strong></p>
+      <img src="signature.png" alt="Signature" />
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button onclick="downloadPDF()">Download PDF</button>
+    <button onclick="goBack()">Go Back to Editing</button>
+  </div>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem("invoiceData") || "{}");
+
+    document.getElementById("custName").textContent = data.customerName || "";
+    document.getElementById("custAddr").textContent = data.customerAddress || "";
+    document.getElementById("custGST").textContent = data.customerGSTIN || "";
+    document.getElementById("transportCost").textContent = data.transport || "0.00";
+    document.getElementById("cgstCost").textContent = data.cgstAmount || "0.00";
+    document.getElementById("sgstCost").textContent = data.sgstAmount || "0.00";
+    document.getElementById("grandTotal").textContent = data.grandTotal || "0.00";
+    document.getElementById("amountWords").textContent = data.amountWords || "";
+
+    const tbody = document.getElementById("itemRows");
+    (data.items || []).forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.date}</td>
+        <td>${item.description}</td>
+        <td>${item.qty}</td>
+        <td>${item.rate}</td>
+        <td>${item.amount}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    function downloadPDF() {
+      const invoice = document.getElementById("invoicePreview");
+      html2pdf().from(invoice).save("invoice.pdf");
+    }
+
+    function goBack() {
+      window.location.href = "index.html";
+    }
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
